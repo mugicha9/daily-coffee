@@ -12,7 +12,19 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
         create: (context) => MainStatus(),
-        child: const MaterialApp(
+        child: MaterialApp(
+          theme: ThemeData(
+              primaryColor: Colors.brown,
+              primaryColorDark: Colors.blueGrey,
+              primaryTextTheme:
+                  const TextTheme(titleSmall: TextStyle(color: Colors.white)),
+              focusColor: Colors.white,
+              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                backgroundColor: Color.fromARGB(255, 128, 95, 83),
+                selectedItemColor: Colors.white,
+                unselectedItemColor: Color.fromRGBO(176, 159, 152, 1),
+              ),
+              scaffoldBackgroundColor: Color.fromARGB(255, 209, 145, 103)),
           title: "Daily-Coffe",
           home: MyHomePage(),
         ));
@@ -42,6 +54,9 @@ class _MyHomePageState extends State<MyHomePage> {
         appPage = MakePage();
         break;
       case 2:
+        appPage = BeanPage();
+        break;
+      case 3:
         appPage = SettingPage();
         break;
       default:
@@ -50,30 +65,35 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Column(
         children: [
+          SafeArea(child: Container(color: Theme.of(context).primaryColor)),
           Expanded(
-            child: appPage,
-          ),
-          SafeArea(
-              child: NavigationBar(
-            destinations: const [
-              NavigationDestination(
-                  icon: Icon(Icons.book_outlined),
-                  selectedIcon: Icon(Icons.book),
-                  label: 'Recipe'),
-              NavigationDestination(
+              child: Container(
+                  color: Theme.of(context).canvasColor, child: appPage)),
+          BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
                   icon: Icon(Icons.coffee_outlined),
-                  selectedIcon: Icon(Icons.coffee),
-                  label: 'Make'),
-              NavigationDestination(
+                  activeIcon: Icon(Icons.coffee),
+                  label: 'Recipe'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.coffee_maker_outlined),
+                  activeIcon: Icon(Icons.coffee_maker),
+                  label: 'Timer'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.inbox_outlined),
+                  activeIcon: Icon(Icons.inbox),
+                  label: 'Beans'),
+              BottomNavigationBarItem(
                   icon: Icon(Icons.settings_outlined),
-                  selectedIcon: Icon(Icons.settings),
+                  activeIcon: Icon(Icons.settings),
                   label: 'Setting'),
             ],
-            selectedIndex: selectedIndex,
-            onDestinationSelected: (value) => setState(() {
+            currentIndex: selectedIndex,
+            onTap: (value) => setState(() {
               selectedIndex = value;
             }),
-          ))
+          )
         ],
       ),
     );
@@ -102,6 +122,19 @@ class MakePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Text('Make'),
+    );
+  }
+}
+
+class BeanPage extends StatelessWidget {
+  const BeanPage({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text('Bean'),
     );
   }
 }
