@@ -36,7 +36,7 @@ class MyHomePage extends StatelessWidget {
               child: NavigationBar(
             destinations: const [
               NavigationDestination(icon: Icon(Icons.coffee), label: 'Recipe'),
-              NavigationDestination(icon: Icon(Icons.pages), label: 'Make'),
+              NavigationDestination(icon: Icon(Icons.book), label: 'Make'),
               NavigationDestination(
                   icon: Icon(Icons.settings), label: 'Setting'),
             ],
