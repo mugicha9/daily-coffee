@@ -15,7 +15,7 @@ class MainApp extends StatelessWidget {
         child: MaterialApp(
           theme: ThemeData(
               primaryColor: Colors.brown,
-              primaryColorDark: Colors.blueGrey,
+              primaryColorDark: Colors.grey,
               primaryTextTheme:
                   const TextTheme(titleSmall: TextStyle(color: Colors.white)),
               focusColor: Colors.white,
@@ -24,7 +24,7 @@ class MainApp extends StatelessWidget {
                 selectedItemColor: Colors.white,
                 unselectedItemColor: Color.fromRGBO(176, 159, 152, 1),
               ),
-              scaffoldBackgroundColor: Color.fromARGB(255, 209, 145, 103)),
+              scaffoldBackgroundColor: Color.fromARGB(255, 128, 95, 83)),
           title: "Daily-Coffe",
           home: MyHomePage(),
         ));
@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
         appPage = RecipePage();
         break;
       case 1:
-        appPage = MakePage();
+        appPage = TimerPage();
         break;
       case 2:
         appPage = BeanPage();
@@ -68,60 +68,154 @@ class _MyHomePageState extends State<MyHomePage> {
           SafeArea(child: Container(color: Theme.of(context).primaryColor)),
           Expanded(
               child: Container(
-                  color: Theme.of(context).canvasColor, child: appPage)),
-          BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.coffee_outlined),
-                  activeIcon: Icon(Icons.coffee),
-                  label: 'Recipe'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.coffee_maker_outlined),
-                  activeIcon: Icon(Icons.coffee_maker),
-                  label: 'Timer'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.inbox_outlined),
-                  activeIcon: Icon(Icons.inbox),
-                  label: 'Beans'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.settings_outlined),
-                  activeIcon: Icon(Icons.settings),
-                  label: 'Setting'),
-            ],
-            currentIndex: selectedIndex,
-            onTap: (value) => setState(() {
-              selectedIndex = value;
-            }),
-          )
+                  color: Theme.of(context).primaryColorDark, child: appPage)),
         ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+              icon: Icon(Icons.coffee_outlined),
+              activeIcon: Icon(Icons.coffee),
+              label: 'Recipe'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.timer_outlined),
+              activeIcon: Icon(Icons.timer),
+              label: 'Timer'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.inbox_outlined),
+              activeIcon: Icon(Icons.inbox),
+              label: 'Beans'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.settings_outlined),
+              activeIcon: Icon(Icons.settings),
+              label: 'Setting'),
+        ],
+        currentIndex: selectedIndex,
+        onTap: (value) => setState(() {
+          selectedIndex = value;
+        }),
+      ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            print("Pressed");
+          },
+          child: Icon(Icons.add)),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
+}
+
+class RecipePage extends StatelessWidget {
+  const RecipePage({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Flexible(
+        child: ListView(children: [
+          CoffeeRecipeCard(),
+          CoffeeRecipeCard(),
+          CoffeeRecipeCard(),
+          CoffeeRecipeCard(),
+          CoffeeRecipeCard(),
+          CoffeeRecipeCard()
+        ]),
       ),
     );
   }
 }
 
-class SettingPage extends StatelessWidget {
-  const SettingPage({
+class CoffeeRecipeCard extends StatelessWidget {
+  const CoffeeRecipeCard({
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text('Setting'),
+    return GestureDetector(
+        child: Card(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            margin: EdgeInsets.all(10),
+            color: Theme.of(context).cardColor,
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.image_outlined, size: 80),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text(
+                            style: Theme.of(context).textTheme.headlineSmall,
+                            "OishiiCoffeeRecipe"),
+                        Wrap(children: [
+                          IngredientCard(
+                              icon: Icon(Icons.water_drop), text: '210ml'),
+                          IngredientCard(
+                              icon: Icon(Icons.thermostat), text: "86℃"),
+                          IngredientCard(
+                              icon: Icon(Icons.grain), text: "Normal"),
+                          IngredientCard(icon: Icon(Icons.scale), text: "14g"),
+                          IngredientCard(
+                              icon: Icon(Icons.timer_rounded), text: "3:00")
+                        ])
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            )),
+        onTap: () {});
+  }
+}
+
+class IngredientCard extends StatelessWidget {
+  final Icon icon;
+  final String text;
+
+  const IngredientCard({Key? key, required this.icon, required this.text})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: Card(
+        color: Color.fromARGB(255, 218, 209, 209),
+        child: Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              icon,
+              Text(style: Theme.of(context).textTheme.labelMedium, text),
+              SizedBox(
+                width: 3,
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
 
-class MakePage extends StatelessWidget {
-  const MakePage({
+class TimerPage extends StatelessWidget {
+  const TimerPage({
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text('Make'),
+      child: Text('Timer'),
     );
   }
 }
@@ -139,15 +233,15 @@ class BeanPage extends StatelessWidget {
   }
 }
 
-class RecipePage extends StatelessWidget {
-  const RecipePage({
+class SettingPage extends StatelessWidget {
+  const SettingPage({
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text('Recipe'),
+      child: Text('Setting'),
     );
   }
 }
