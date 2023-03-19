@@ -1,18 +1,20 @@
 class RecipeData {
-  final String title;
-  int water;
-  int temperature;
-  int bean;
-  int timeSecond;
-  String grain;
+  final int id;
+  String title;
+  int? water;
+  int? temperature;
+  int? bean;
+  int? timeSecond;
+  String? grain;
 
   RecipeData(
       {required this.title,
-      this.water = -1,
-      this.temperature = -1,
-      this.bean = -1,
-      this.grain = "",
-      this.timeSecond = -1});
+      required this.id,
+      this.water,
+      this.temperature,
+      this.bean,
+      this.grain,
+      this.timeSecond});
 
   setWater(int w) {
     water = w;
@@ -24,5 +26,35 @@ class RecipeData {
 
   setTimeSecond(int ts) {
     timeSecond = ts;
+  }
+
+  RecipeData copyWith(
+          {String? title,
+          int? id,
+          int? water,
+          int? temperature,
+          int? bean,
+          String? grain,
+          int? timeSecond}) =>
+      RecipeData(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        water: water ?? this.water,
+        temperature: temperature ?? this.temperature,
+        bean: bean ?? this.bean,
+        grain: grain ?? this.grain,
+        timeSecond: timeSecond ?? this.timeSecond,
+      );
+
+  RecipeData copyFrom(RecipeData rd) {
+    return RecipeData(
+      id: id,
+      title: rd.title,
+      water: rd.water ?? water,
+      temperature: rd.temperature ?? temperature,
+      bean: rd.bean ?? bean,
+      grain: rd.grain ?? grain,
+      timeSecond: rd.timeSecond ?? timeSecond,
+    );
   }
 }

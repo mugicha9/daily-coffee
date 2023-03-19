@@ -15,52 +15,58 @@ class CoffeeRecipeCard extends StatelessWidget {
     //Build IngredientCard
     var ingredientCards = <IngredientCard>[];
 
-    if (recipe.water != -1) {
+    if (recipe.water != null) {
       ingredientCards.add(IngredientCard(
           icon: const Icon(Icons.water_drop), text: "${recipe.water}ml"));
     }
-    if (recipe.temperature != -1) {
+    if (recipe.temperature != null) {
       ingredientCards.add(IngredientCard(
-          icon: Icon(Icons.thermostat), text: "${recipe.temperature}℃"));
+          icon: const Icon(Icons.thermostat), text: "${recipe.temperature}℃"));
     }
-    if (recipe.bean != -1) {
-      ingredientCards.add(
-          IngredientCard(icon: Icon(Icons.scale), text: "${recipe.bean}g"));
+    if (recipe.bean != null) {
+      ingredientCards.add(IngredientCard(
+          icon: const Icon(Icons.scale), text: "${recipe.bean}g"));
     }
 
-    if (recipe.grain != "") {
-      ingredientCards
-          .add(IngredientCard(icon: Icon(Icons.grain), text: recipe.grain));
+    if (recipe.grain != null) {
+      ingredientCards.add(
+          IngredientCard(icon: const Icon(Icons.grain), text: recipe.grain!));
     }
-    if (recipe.timeSecond != -1) {
+    if (recipe.timeSecond != null) {
       ingredientCards.add(IngredientCard(
-          icon: Icon(Icons.timer_rounded), text: "${recipe.timeSecond}s"));
+          icon: const Icon(Icons.timer_rounded),
+          text: "${recipe.timeSecond}s"));
     }
 
     return GestureDetector(
         child: Card(
+            shadowColor: Theme.of(context).shadowColor,
+            elevation: 6,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            margin: EdgeInsets.all(10),
+            margin: const EdgeInsets.all(10),
             color: Theme.of(context).cardColor,
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Icon(Icons.image_outlined, size: 80),
-                  Container(
+                  const Icon(Icons.image_outlined, size: 80),
+                  SizedBox(
                     height: 80,
-                    child: VerticalDivider(
+                    child: const VerticalDivider(
                       color: Colors.black,
                     ),
                   ),
                   Flexible(
                     child: Center(
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              style: Theme.of(context)
+                                  .primaryTextTheme
+                                  .headlineSmall,
                               recipe.title),
                           Wrap(children: ingredientCards)
                         ],
@@ -72,8 +78,13 @@ class CoffeeRecipeCard extends StatelessWidget {
             )),
         onTap: () {
           //TODO: Make Edit Page. (Load existed Recipe and fill by it)
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => RecipeEditPage()));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => RecipeEditPage(
+                        id: recipe.id,
+                        isNew: false,
+                      )));
         });
   }
 }
@@ -90,7 +101,7 @@ class IngredientCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: Card(
-        color: Color.fromARGB(255, 218, 209, 209),
+        color: const Color.fromARGB(255, 218, 209, 209),
         child: Padding(
           padding: const EdgeInsets.all(2.0),
           child: Row(
@@ -99,7 +110,7 @@ class IngredientCard extends StatelessWidget {
             children: [
               icon,
               Text(style: Theme.of(context).textTheme.labelMedium, text),
-              SizedBox(
+              const SizedBox(
                 width: 3,
               )
             ],
