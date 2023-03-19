@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'recipe/recipe_card.dart';
 import 'recipe/recipe_edit.dart';
 import 'recipe/recipe.dart';
+
+import 'setting/setting_page.dart';
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -129,17 +132,18 @@ class _MyHomePageState extends State<MyHomePage> {
             splashColor: Theme.of(context).primaryColorLight,
             backgroundColor: Theme.of(context).primaryColor,
             onPressed: () {
-              /*Navigator.push(
+              Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const RecipeEditPage(
-                            id: -1,
+                      builder: (context) => RecipeEditPage(
+                            recipeData: RecipeData(
+                                id: mainStatus.nextId, title: "NewRecipe"),
                             isNew: true,
                           )));
-              */
-              mainStatus.setMainStatus();
+
+              //mainStatus.setMainStatus();
             },
-            child: const Icon(Icons.add)),
+            child: const Icon(Icons.note_add_outlined)),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -196,21 +200,9 @@ class BeanPage extends StatelessWidget {
   }
 }
 
-class SettingPage extends StatelessWidget {
-  const SettingPage({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Setting'),
-    );
-  }
-}
-
 class MainStatus extends ChangeNotifier {
   var arrayRecipeData = <RecipeData>[];
+  var nextId = 0;
 
   void setMainStatus() {
     for (int i = 0; i < 10; i++) {
@@ -239,9 +231,28 @@ class MainStatus extends ChangeNotifier {
     for (int i = 0; i < arrayRecipeData.length; i++) {
       if (arrayRecipeData[i].id == id) {
         debugPrint("update to NewData(${newData.title})");
-        arrayRecipeData[i] = arrayRecipeData[i].copyWith(title: newData.title);
+        arrayRecipeData[i] = arrayRecipeData[i].copyFrom(newData);
       }
       notifyListeners();
     }
+  }
+
+  void addRecipeData(RecipeData newData) {
+    arrayRecipeData.add(newData);
+    nextId++;
+
+    notifyListeners();
+  }
+
+  void removeById(int id) {
+    var target = findById(id);
+    arrayRecipeData.remove(target);
+
+    notifyListeners();
+  }
+
+  void resetAllData() {
+    arrayRecipeData.clear();
+    nextId = 0;
   }
 }

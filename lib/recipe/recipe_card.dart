@@ -82,7 +82,7 @@ class CoffeeRecipeCard extends StatelessWidget {
               context,
               MaterialPageRoute(
                   builder: (context) => RecipeEditPage(
-                        id: recipe.id,
+                        recipeData: recipe,
                         isNew: false,
                       )));
         });

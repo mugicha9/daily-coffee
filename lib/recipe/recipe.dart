@@ -1,5 +1,5 @@
 class RecipeData {
-  final int id;
+  int id;
   String title;
   int? water;
   int? temperature;
@@ -15,6 +15,10 @@ class RecipeData {
       this.bean,
       this.grain,
       this.timeSecond});
+
+  setId(int id) {
+    this.id = id;
+  }
 
   setWater(int w) {
     water = w;
