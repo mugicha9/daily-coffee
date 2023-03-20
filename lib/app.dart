@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'recipe/recipe_card.dart';
-import 'recipe/recipe_edit.dart';
-import 'recipe/recipe.dart';
+import 'recipe/recipe_detail.dart';
+import 'recipe/recipe_data.dart';
 
 import 'setting/setting_page.dart';
 
@@ -135,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => RecipeEditPage(
+                      builder: (context) => RecipeDetailPage(
                             recipeData: RecipeData(
                                 id: mainStatus.nextId, title: "NewRecipe"),
                             isNew: true,
@@ -204,20 +204,6 @@ class MainStatus extends ChangeNotifier {
   var arrayRecipeData = <RecipeData>[];
   var nextId = 0;
 
-  void setMainStatus() {
-    for (int i = 0; i < 10; i++) {
-      arrayRecipeData.add(RecipeData(
-          id: i,
-          title: "OishiiCoffeeRecipe$i",
-          water: 210,
-          temperature: 86,
-          bean: 14,
-          timeSecond: 300,
-          grain: "Normal"));
-    }
-    notifyListeners();
-  }
-
   RecipeData findById(int id) {
     for (int i = 0; i < arrayRecipeData.length; i++) {
       if (arrayRecipeData[i].id == id) {
@@ -231,7 +217,7 @@ class MainStatus extends ChangeNotifier {
     for (int i = 0; i < arrayRecipeData.length; i++) {
       if (arrayRecipeData[i].id == id) {
         debugPrint("update to NewData(${newData.title})");
-        arrayRecipeData[i] = arrayRecipeData[i].copyFrom(newData);
+        arrayRecipeData[i] = newData;
       }
       notifyListeners();
     }

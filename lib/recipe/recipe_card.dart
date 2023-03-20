@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'recipe.dart';
-import 'recipe_edit.dart';
+import 'recipe_data.dart';
+import 'recipe_detail.dart';
 
 class CoffeeRecipeCard extends StatelessWidget {
   const CoffeeRecipeCard({
@@ -28,7 +28,7 @@ class CoffeeRecipeCard extends StatelessWidget {
           icon: const Icon(Icons.scale), text: "${recipe.bean}g"));
     }
 
-    if (recipe.grain != null) {
+    if (recipe.grain != null && recipe.grain != "") {
       ingredientCards.add(
           IngredientCard(icon: const Icon(Icons.grain), text: recipe.grain!));
     }
@@ -81,7 +81,7 @@ class CoffeeRecipeCard extends StatelessWidget {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => RecipeEditPage(
+                  builder: (context) => RecipeDetailPage(
                         recipeData: recipe,
                         isNew: false,
                       )));

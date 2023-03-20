@@ -1,3 +1,5 @@
+import 'recipe_process.dart';
+
 class RecipeData {
   int id;
   String title;
@@ -6,30 +8,21 @@ class RecipeData {
   int? bean;
   int? timeSecond;
   String? grain;
+  RecipeProcessSequence? processSequence;
 
-  RecipeData(
-      {required this.title,
-      required this.id,
-      this.water,
-      this.temperature,
-      this.bean,
-      this.grain,
-      this.timeSecond});
+  RecipeData({
+    required this.title,
+    required this.id,
+    this.water,
+    this.temperature,
+    this.bean,
+    this.grain,
+    this.timeSecond,
+    this.processSequence,
+  });
 
   setId(int id) {
     this.id = id;
-  }
-
-  setWater(int w) {
-    water = w;
-  }
-
-  setBean(int b) {
-    bean = b;
-  }
-
-  setTimeSecond(int ts) {
-    timeSecond = ts;
   }
 
   RecipeData copyWith(
@@ -39,7 +32,8 @@ class RecipeData {
           int? temperature,
           int? bean,
           String? grain,
-          int? timeSecond}) =>
+          int? timeSecond,
+          RecipeProcessSequence? processSequence}) =>
       RecipeData(
         id: id ?? this.id,
         title: title ?? this.title,
@@ -48,6 +42,7 @@ class RecipeData {
         bean: bean ?? this.bean,
         grain: grain ?? this.grain,
         timeSecond: timeSecond ?? this.timeSecond,
+        processSequence: processSequence ?? this.processSequence,
       );
 
   RecipeData copyFrom(RecipeData rd) {
