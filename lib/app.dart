@@ -24,7 +24,7 @@ class MainApp extends StatelessWidget {
                   foregroundColor: Colors.white),
               //primary
               primaryColor: Colors.brown,
-              primaryColorLight: Color.fromRGBO(196, 179, 164, 1),
+              primaryColorLight: Color.fromRGBO(213, 206, 198, 1),
               primaryColorDark: Colors.grey,
               //text
               primaryTextTheme: const TextTheme(

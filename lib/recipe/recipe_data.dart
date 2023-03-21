@@ -1,5 +1,16 @@
 import 'recipe_process.dart';
 
+enum RecipeIndex {
+  ID,
+  Title,
+  Water,
+  Temperature,
+  Been,
+  TimeSecond,
+  Grain,
+  Precess,
+}
+
 class RecipeData {
   int id;
   String title;
@@ -8,7 +19,7 @@ class RecipeData {
   int? bean;
   int? timeSecond;
   String? grain;
-  RecipeProcessSequence? processSequence;
+  List<RecipeProcessData>? processSequence;
 
   RecipeData({
     required this.title,
@@ -33,7 +44,7 @@ class RecipeData {
           int? bean,
           String? grain,
           int? timeSecond,
-          RecipeProcessSequence? processSequence}) =>
+          List<RecipeProcessData>? processSequence}) =>
       RecipeData(
         id: id ?? this.id,
         title: title ?? this.title,
@@ -45,15 +56,5 @@ class RecipeData {
         processSequence: processSequence ?? this.processSequence,
       );
 
-  RecipeData copyFrom(RecipeData rd) {
-    return RecipeData(
-      id: id,
-      title: rd.title,
-      water: rd.water ?? water,
-      temperature: rd.temperature ?? temperature,
-      bean: rd.bean ?? bean,
-      grain: rd.grain ?? grain,
-      timeSecond: rd.timeSecond ?? timeSecond,
-    );
-  }
+  void updateWith(RecipeIndex recipeIndex) {}
 }

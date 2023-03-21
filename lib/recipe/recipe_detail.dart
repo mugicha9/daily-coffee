@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'recipe_data.dart';
+import 'recipe_inputfield.dart';
 
 class RecipeDetailPage extends StatefulWidget {
   final RecipeData recipeData;
@@ -71,7 +72,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     edittingRecipeData = recipeData.copyWith();
   }
 
-  void updateEdittingRecipeData() {
+  void updateBaseRecipeData() {
     recipeData = edittingRecipeData.copyWith();
   }
 
@@ -151,7 +152,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                       if (!isNew) {
                         mainStatus.updateRecipeData(
                             recipeData.id, edittingRecipeData);
-                        updateEdittingRecipeData();
+                        updateBaseRecipeData();
                       } else {
                         edittingRecipeData.setId(mainStatus.nextId);
                         debugPrint("Add Recipe: ${edittingRecipeData.id}");
@@ -177,38 +178,31 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                           children: [
                             //TODO: Alignment these items
                             WithLabelDivider(label: "Recipe Overview"),
-                            TextField(
-                                controller: _titleTextEditingController,
-                                enabled: isEdit,
-                                decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    labelText: "Recipe Name",
-                                    hintText: "Enter Recipe Name",
-                                    prefixIcon: Icon(Icons.abc),
-                                    fillColor: Colors.grey),
-                                keyboardType: TextInputType.text,
-                                onChanged: (String value) {
-                                  edittingRecipeData.title = value;
-                                }),
+                            RecipeEditTextField(
+                              controller: _titleTextEditingController,
+                              labelText: "Recipe Name",
+                              hintText: "Enter Recipe Name",
+                              prefixIcon: Icon(Icons.abc),
+                              isEdit: isEdit,
+                              onChanged: ((String value) =>
+                                  {edittingRecipeData.title = value}),
+                            ),
                             Row(
                               children: [
                                 Flexible(
                                   child: Padding(
                                     padding:
                                         const EdgeInsets.only(top: 8, right: 4),
-                                    child: TextField(
-                                      enabled: isEdit,
-                                      inputFormatters: [
+                                    child: RecipeEditTextField(
+                                      isEdit: isEdit,
+                                      formatters: [
                                         FilteringTextInputFormatter.digitsOnly
                                       ],
                                       controller: _waterTextEditingController,
-                                      decoration: const InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        labelText: "Water",
-                                        suffixText: "g",
-                                        prefixIcon: Icon(Icons.water_drop),
-                                      ),
-                                      onChanged: (value) {
+                                      labelText: "Water",
+                                      suffixText: "g",
+                                      prefixIcon: Icon(Icons.water_drop),
+                                      onChanged: (String value) {
                                         edittingRecipeData.water = value.isEmpty
                                             ? null
                                             : int.parse(value);
@@ -220,20 +214,17 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         top: 8.0, left: 4),
-                                    child: TextField(
-                                      enabled: isEdit,
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.digitsOnly
-                                      ],
+                                    child: RecipeEditTextField(
                                       controller:
                                           _temperatureTextEditingController,
-                                      decoration: const InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        labelText: "Temperature",
-                                        suffixText: "℃",
-                                        prefixIcon: Icon(Icons.scale),
-                                      ),
-                                      onChanged: (value) {
+                                      formatters: [
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      labelText: "Temperature",
+                                      suffixText: "℃",
+                                      prefixIcon: Icon(Icons.thermostat),
+                                      isEdit: isEdit,
+                                      onChanged: (String value) {
                                         edittingRecipeData.temperature =
                                             value.isEmpty
                                                 ? null
@@ -250,18 +241,15 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                   child: Padding(
                                     padding:
                                         const EdgeInsets.only(top: 8, right: 4),
-                                    child: TextField(
-                                      enabled: isEdit,
-                                      inputFormatters: [
+                                    child: RecipeEditTextField(
+                                      isEdit: isEdit,
+                                      formatters: [
                                         FilteringTextInputFormatter.digitsOnly
                                       ],
                                       controller: _beanTextEditingController,
-                                      decoration: const InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        labelText: "Bean",
-                                        suffixText: "g",
-                                        prefixIcon: Icon(Icons.scale),
-                                      ),
+                                      labelText: "Bean",
+                                      suffixText: "g",
+                                      prefixIcon: Icon(Icons.scale),
                                       onChanged: (value) {
                                         edittingRecipeData.bean = value.isEmpty
                                             ? null
@@ -274,14 +262,11 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         top: 8.0, left: 4),
-                                    child: TextField(
-                                      enabled: isEdit,
+                                    child: RecipeEditTextField(
+                                      isEdit: isEdit,
                                       controller: _grainTextEditingController,
-                                      decoration: const InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        labelText: "grain",
-                                        prefixIcon: Icon(Icons.grain),
-                                      ),
+                                      labelText: "grain",
+                                      prefixIcon: Icon(Icons.grain),
                                       onChanged: (value) {
                                         edittingRecipeData.grain =
                                             value.isEmpty ? "" : value;
@@ -402,11 +387,12 @@ class ProcessItem extends StatefulWidget {
 }
 
 class _ProcessItemState extends State<ProcessItem> {
-  var showText = "Pour";
+  String showText = "Pour";
+  String suffixText = "g";
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(),
+    return Card(
+      color: Color.fromRGBO(212, 188, 141, 1),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
@@ -454,6 +440,18 @@ class _ProcessItemState extends State<ProcessItem> {
                   setState(
                     () {
                       showText = value ?? "NULL";
+                      switch (value) {
+                        case "Pour":
+                          suffixText = "g";
+                          break;
+                        case "Wait":
+                          suffixText = "s";
+                          break;
+                        case "Stir":
+                          suffixText = "Times";
+                          break;
+                        default:
+                      }
                     },
                   )
                 },
@@ -464,10 +462,9 @@ class _ProcessItemState extends State<ProcessItem> {
                 padding: const EdgeInsets.only(left: 8.0),
                 child: TextField(
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(50)),
-                      labelText: "Attitude",
-                      prefixIcon: Icon(Icons.onetwothree)),
+                      labelText: "Attribute",
+                      prefixIcon: Icon(Icons.onetwothree),
+                      suffixText: suffixText),
                 ),
               ),
             )
