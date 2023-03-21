@@ -81,7 +81,7 @@ class CoffeeRecipeCard extends StatelessWidget {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => RecipeDetailPage(
+                  builder: (context) => RecipeDetailWidget(
                         recipeData: recipe,
                         isNew: false,
                       )));

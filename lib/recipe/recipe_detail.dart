@@ -5,6 +5,26 @@ import 'package:provider/provider.dart';
 
 import 'recipe_data.dart';
 import 'recipe_inputfield.dart';
+import 'recipe_process.dart';
+
+class RecipeDetailWidget extends StatelessWidget {
+  final RecipeData recipeData;
+  final bool isNew;
+  const RecipeDetailWidget(
+      {Key? key, required this.recipeData, required this.isNew})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+        create: (context) =>
+            RecipeDetailStatus(isNew, recipeData.processSequence),
+        child: RecipeDetailPage(
+          recipeData: recipeData,
+          isNew: isNew,
+        ));
+  }
+}
 
 class RecipeDetailPage extends StatefulWidget {
   final RecipeData recipeData;
@@ -20,8 +40,6 @@ class RecipeDetailPage extends StatefulWidget {
 class _RecipeDetailPageState extends State<RecipeDetailPage> {
   late RecipeData recipeData;
   late bool isNew;
-  late bool isEdit;
-
   //textEditingControllers for setting init value
   //TODO: use more sophisticated way
   // Move contorller to child widget like "IngredientEditInputField"
@@ -38,7 +56,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
   late final _controllers = <TextEditingController>[];
 
   late RecipeData edittingRecipeData;
-  var processItems = <Widget>[ProcessItem()];
 
   @override
   void initState() {
@@ -46,7 +63,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
     recipeData = widget.recipeData;
     isNew = widget.isNew;
-    isEdit = isNew;
 
     _controllers.addAll([
       _titleTextEditingController,
@@ -106,191 +122,245 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
   @override
   Widget build(BuildContext context) {
     final mainStatus = context.watch<MainStatus>();
-
-    return ChangeNotifierProvider(
-      create: (context) => RecipeDetailStatus(),
-      child: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).primaryColor,
-            title: Text((isNew
-                ? "Create"
-                : (isEdit ? "Edit" : edittingRecipeData.title))),
-            actions: [
-              IconButton(
-                  onPressed: () {
-                    debugPrint("Remove ID at: ${recipeData.id}");
-                    if (!isNew) mainStatus.removeById(recipeData.id);
-                    Navigator.popUntil(context, (route) => route.isFirst);
-                  },
-                  icon: Icon(Icons.delete)),
-              Visibility(
-                  visible: !isNew && isEdit,
-                  child: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          initTextField();
-                          initEdittingRecipeData();
-                        });
-                      },
-                      icon: Icon(Icons.restore))),
-              Visibility(
-                  visible: !isEdit,
-                  child: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          isEdit = true;
-                        });
-                      },
-                      icon: Icon(Icons.edit))),
-              Visibility(
-                visible: isEdit,
+    final detailStatus = context.watch<RecipeDetailStatus>();
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).primaryColor,
+          title: Text((isNew
+              ? "Create"
+              : (detailStatus.isEdit ? "Edit" : edittingRecipeData.title))),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  if (!isNew) mainStatus.removeById(recipeData.id);
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                },
+                icon: Icon(Icons.delete)),
+            Visibility(
+                visible: !isNew && detailStatus.isEdit,
                 child: IconButton(
                     onPressed: () {
-                      if (!isNew) {
-                        mainStatus.updateRecipeData(
-                            recipeData.id, edittingRecipeData);
-                        updateBaseRecipeData();
-                      } else {
-                        edittingRecipeData.setId(mainStatus.nextId);
-                        debugPrint("Add Recipe: ${edittingRecipeData.id}");
-                        mainStatus.addRecipeData(edittingRecipeData);
-                        Navigator.popUntil(context, (route) => route.isFirst);
-                      }
                       setState(() {
-                        isEdit = false;
+                        initTextField();
+                        initEdittingRecipeData();
                       });
                     },
-                    icon: Icon(Icons.check)),
-              ),
-            ],
-          ),
-          body: Column(
-            children: [
-              Flexible(
-                  child: Container(
-                      color: Theme.of(context).primaryColorLight,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: ListView(
-                          children: [
-                            //TODO: Alignment these items
-                            WithLabelDivider(label: "Recipe Overview"),
-                            RecipeEditTextField(
-                              controller: _titleTextEditingController,
-                              labelText: "Recipe Name",
-                              hintText: "Enter Recipe Name",
-                              prefixIcon: Icon(Icons.abc),
-                              isEdit: isEdit,
-                              onChanged: ((String value) =>
-                                  {edittingRecipeData.title = value}),
-                            ),
-                            Row(
-                              children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.only(top: 8, right: 4),
-                                    child: RecipeEditTextField(
-                                      isEdit: isEdit,
-                                      formatters: [
-                                        FilteringTextInputFormatter.digitsOnly
-                                      ],
-                                      controller: _waterTextEditingController,
-                                      labelText: "Water",
-                                      suffixText: "g",
-                                      prefixIcon: Icon(Icons.water_drop),
-                                      onChanged: (String value) {
-                                        edittingRecipeData.water = value.isEmpty
-                                            ? null
-                                            : int.parse(value);
-                                      },
-                                    ),
+                    icon: Icon(Icons.restore))),
+            Visibility(
+                visible: !detailStatus.isEdit,
+                child: IconButton(
+                    onPressed: () {
+                      detailStatus.toggleEdit();
+                    },
+                    icon: Icon(Icons.edit))),
+            Visibility(
+              visible: detailStatus.isEdit,
+              child: IconButton(
+                  onPressed: () {
+                    if (!isNew) {
+                      mainStatus.updateRecipeData(
+                          recipeData.id, edittingRecipeData);
+                      updateBaseRecipeData();
+                    } else {
+                      edittingRecipeData.setId(mainStatus.nextId);
+                      mainStatus.addRecipeData(edittingRecipeData);
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                    }
+                    edittingRecipeData.processSequence =
+                        detailStatus.arrayProcessData;
+                    detailStatus.toggleEdit();
+                  },
+                  icon: Icon(Icons.check)),
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            Flexible(
+                child: Container(
+                    color: Theme.of(context).primaryColorLight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ListView(
+                        children: [
+                          //TODO: Alignment these items
+                          WithLabelDivider(label: "Recipe Overview"),
+                          RecipeEditTextField(
+                            controller: _titleTextEditingController,
+                            labelText: "Recipe Name",
+                            hintText: "Enter Recipe Name",
+                            prefixIcon: Icon(Icons.abc),
+                            onChanged: ((String value) =>
+                                {edittingRecipeData.title = value}),
+                          ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 8, right: 4),
+                                  child: RecipeEditTextField(
+                                    formatters: [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    controller: _waterTextEditingController,
+                                    keyboardType: TextInputType.number,
+                                    labelText: "Water",
+                                    suffixText: "g",
+                                    prefixIcon: Icon(Icons.water_drop),
+                                    onChanged: (String value) {
+                                      edittingRecipeData.water = value.isEmpty
+                                          ? null
+                                          : int.parse(value);
+                                    },
                                   ),
                                 ),
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 8.0, left: 4),
-                                    child: RecipeEditTextField(
-                                      controller:
-                                          _temperatureTextEditingController,
-                                      formatters: [
-                                        FilteringTextInputFormatter.digitsOnly
-                                      ],
-                                      labelText: "Temperature",
-                                      suffixText: "℃",
-                                      prefixIcon: Icon(Icons.thermostat),
-                                      isEdit: isEdit,
-                                      onChanged: (String value) {
-                                        edittingRecipeData.temperature =
-                                            value.isEmpty
-                                                ? null
-                                                : int.parse(value);
-                                      },
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.only(top: 8, right: 4),
-                                    child: RecipeEditTextField(
-                                      isEdit: isEdit,
-                                      formatters: [
-                                        FilteringTextInputFormatter.digitsOnly
-                                      ],
-                                      controller: _beanTextEditingController,
-                                      labelText: "Bean",
-                                      suffixText: "g",
-                                      prefixIcon: Icon(Icons.scale),
-                                      onChanged: (value) {
-                                        edittingRecipeData.bean = value.isEmpty
-                                            ? null
-                                            : int.parse(value);
-                                      },
-                                    ),
+                              ),
+                              Flexible(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 8.0, left: 4),
+                                  child: RecipeEditTextField(
+                                    controller:
+                                        _temperatureTextEditingController,
+                                    formatters: [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    keyboardType: TextInputType.number,
+                                    labelText: "Temperature",
+                                    suffixText: "℃",
+                                    prefixIcon: Icon(Icons.thermostat),
+                                    onChanged: (String value) {
+                                      edittingRecipeData.temperature =
+                                          value.isEmpty
+                                              ? null
+                                              : int.parse(value);
+                                    },
                                   ),
                                 ),
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 8.0, left: 4),
-                                    child: RecipeEditTextField(
-                                      isEdit: isEdit,
-                                      controller: _grainTextEditingController,
-                                      labelText: "grain",
-                                      prefixIcon: Icon(Icons.grain),
-                                      onChanged: (value) {
-                                        edittingRecipeData.grain =
-                                            value.isEmpty ? "" : value;
-                                      },
-                                    ),
+                              )
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 8, right: 4),
+                                  child: RecipeEditTextField(
+                                    formatters: [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    controller: _beanTextEditingController,
+                                    keyboardType: TextInputType.number,
+                                    labelText: "Bean",
+                                    suffixText: "g",
+                                    prefixIcon: Icon(Icons.scale),
+                                    onChanged: (value) {
+                                      edittingRecipeData.bean = value.isEmpty
+                                          ? null
+                                          : int.parse(value);
+                                    },
                                   ),
-                                )
-                              ],
-                            ),
-                            WithLabelDivider(label: "Process"),
-                            ...processItems,
-                            AddProcessItem(),
-                          ],
-                        ),
-                      )))
-            ],
-          ),
+                                ),
+                              ),
+                              Flexible(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 8.0, left: 4),
+                                  child: RecipeEditTextField(
+                                    controller: _grainTextEditingController,
+                                    keyboardType: TextInputType.text,
+                                    labelText: "grain",
+                                    prefixIcon: Icon(Icons.grain),
+                                    onChanged: (value) {
+                                      edittingRecipeData.grain =
+                                          value.isEmpty ? "" : value;
+                                    },
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                          WithLabelDivider(label: "Process"),
+                          Column(children: detailStatus.buildProcessItem()),
+                          AddProcessItem(),
+                        ],
+                      ),
+                    )))
+          ],
         ),
       ),
     );
   }
 }
 
-class RecipeDetailStatus extends ChangeNotifier {}
+class RecipeDetailStatus extends ChangeNotifier {
+  var nextProcessID = 0;
+  var isEdit = true;
+  late List<RecipeProcessData> arrayProcessData;
+  RecipeDetailStatus(bool b, List<RecipeProcessData>? ps) {
+    isEdit = b;
+    arrayProcessData = ps ?? [];
+  }
+
+  void toggleEdit() {
+    isEdit = !isEdit;
+    notifyListeners();
+  }
+
+  void setEdit(bool b) {
+    isEdit = b;
+    notifyListeners();
+  }
+
+  void publishNewProcess() {
+    arrayProcessData.add(RecipeProcessData(id: nextProcessID));
+    nextProcessID++;
+    notifyListeners();
+  }
+
+  void updateProcess(int id, String? label, int? value) {
+    var target = findById(id);
+    target.label = label ?? target.label;
+    target.value = value ?? target.value;
+  }
+
+  RecipeProcessData findById(int id) {
+    for (int i = 0; i < arrayProcessData.length; i++) {
+      if (arrayProcessData[i].id == id) {
+        return arrayProcessData[i];
+      }
+    }
+    throw Error();
+  }
+
+  void removeProcess(int id) {
+    for (int i = 0; i < arrayProcessData.length; i++) {
+      if (arrayProcessData[i].id == id) {
+        arrayProcessData.remove(arrayProcessData[i]);
+      }
+    }
+    notifyListeners();
+  }
+
+  List<ProcessItem> buildProcessItem() {
+    debugProcess();
+    return arrayProcessData
+        .map((e) => ProcessItem(id: e.id, label: e.label, value: e.value))
+        .toList();
+  }
+
+  void debugProcess() {
+    for (int i = 0; i < arrayProcessData.length; i++) {
+      debugPrint(
+          "[Status] ID: ${arrayProcessData[i].id}, label: ${arrayProcessData[i].label}, value: ${arrayProcessData[i].value}");
+    }
+  }
+}
 
 class WithLabelDivider extends StatelessWidget {
   final String label;
@@ -357,6 +427,7 @@ class _AddProcessItemState extends State<AddProcessItem>
 
   @override
   Widget build(BuildContext context) {
+    var detailStatus = context.watch<RecipeDetailStatus>();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -368,109 +439,11 @@ class _AddProcessItemState extends State<AddProcessItem>
               style: IconButton.styleFrom(
                   side: BorderSide(color: Colors.black),
                   shape: ContinuousRectangleBorder()),
-              onPressed: () {},
+              onPressed: () {
+                detailStatus.publishNewProcess();
+              },
             )
           ]),
-    );
-  }
-}
-
-//TODO: Improve UI Design
-//    : Separete file
-class ProcessItem extends StatefulWidget {
-  const ProcessItem({
-    super.key,
-  });
-
-  @override
-  State<ProcessItem> createState() => _ProcessItemState();
-}
-
-class _ProcessItemState extends State<ProcessItem> {
-  String showText = "Pour";
-  String suffixText = "g";
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: Color.fromRGBO(212, 188, 141, 1),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: DropdownButton(
-                value: showText,
-                items: [
-                  // TODO: Use Dialog
-
-                  DropdownMenuItem(
-                      child: Row(
-                        children: [
-                          Icon(Icons.water_drop_outlined),
-                          SizedBox(width: 8),
-                          Text("Pour"),
-                        ],
-                      ),
-                      value: "Pour"),
-                  DropdownMenuItem(
-                      child: Row(
-                        children: [
-                          Icon(Icons.hourglass_top),
-                          SizedBox(width: 8),
-                          Text("Wait"),
-                        ],
-                      ),
-                      value: "Wait"),
-                  DropdownMenuItem(
-                    child: Row(
-                      children: [
-                        Icon(Icons.replay_circle_filled),
-                        SizedBox(width: 8),
-                        Text("Stir"),
-                      ],
-                    ),
-                    value: "Stir",
-                  )
-                ],
-                onChanged: (String? value) => {
-                  setState(
-                    () {
-                      showText = value ?? "NULL";
-                      switch (value) {
-                        case "Pour":
-                          suffixText = "g";
-                          break;
-                        case "Wait":
-                          suffixText = "s";
-                          break;
-                        case "Stir":
-                          suffixText = "Times";
-                          break;
-                        default:
-                      }
-                    },
-                  )
-                },
-              ),
-            ),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: TextField(
-                  decoration: InputDecoration(
-                      labelText: "Attribute",
-                      prefixIcon: Icon(Icons.onetwothree),
-                      suffixText: suffixText),
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
     );
   }
 }

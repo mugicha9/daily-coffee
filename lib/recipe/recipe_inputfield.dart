@@ -1,28 +1,28 @@
+import 'package:daily_coffee/recipe/recipe_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'recipe_data.dart';
+import 'package:provider/provider.dart';
 
 class RecipeEditTextField extends StatelessWidget {
   const RecipeEditTextField({
     super.key,
     required TextEditingController controller,
     required this.labelText,
-    required this.isEdit,
     required this.onChanged,
     this.hintText,
     this.prefixIcon,
     this.suffixText,
     this.formatters,
+    this.keyboardType,
   }) : textEditingController = controller;
 
   final TextEditingController textEditingController;
-  final bool isEdit;
 
   final String labelText;
   final String? hintText;
   final Icon? prefixIcon;
   final String? suffixText;
+  final TextInputType? keyboardType;
 
   final List<TextInputFormatter>? formatters;
 
@@ -30,10 +30,11 @@ class RecipeEditTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var detailStatus = context.watch<RecipeDetailStatus>();
     return TextField(
         controller: textEditingController,
         inputFormatters: formatters,
-        enabled: isEdit,
+        enabled: detailStatus.isEdit,
         decoration: InputDecoration(
             border: OutlineInputBorder(),
             labelText: labelText,
@@ -41,7 +42,7 @@ class RecipeEditTextField extends StatelessWidget {
             suffixText: suffixText,
             prefixIcon: prefixIcon,
             fillColor: Colors.grey),
-        keyboardType: TextInputType.text,
+        keyboardType: keyboardType,
         onChanged: (String value) {
           onChanged(value);
         });

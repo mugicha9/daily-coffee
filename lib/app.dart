@@ -135,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => RecipeDetailPage(
+                      builder: (context) => RecipeDetailWidget(
                             recipeData: RecipeData(
                                 id: mainStatus.nextId, title: "NewRecipe"),
                             isNew: true,
