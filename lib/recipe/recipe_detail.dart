@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:ffi';
+
 import 'package:daily_coffee/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'recipe_data.dart';
 import 'recipe_inputfield.dart';
 import 'recipe_process.dart';
+
+import '../util/label_divider.dart';
 
 class RecipeDetailWidget extends StatelessWidget {
   final RecipeData recipeData;
@@ -42,10 +47,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
   late bool isNew;
   //textEditingControllers for setting init value
   //TODO: use more sophisticated way
-  // Move contorller to child widget like "IngredientEditInputField"
-  // Use child method through GlobalKey and get field's value?
-
-  // Or Use RecipeDetailStatus, extending ChangeNotifier
 
   late final _titleTextEditingController = TextEditingController();
   late final _waterTextEditingController = TextEditingController();
@@ -123,6 +124,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
   Widget build(BuildContext context) {
     final mainStatus = context.watch<MainStatus>();
     final detailStatus = context.watch<RecipeDetailStatus>();
+    edittingRecipeData.timeSecond = detailStatus.getTime().inSeconds;
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -285,8 +287,70 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                               )
                             ],
                           ),
+                          Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Flexible(
+                                    child: SizedBox(
+                                        width: double.infinity,
+                                        child: Divider(
+                                          color: Colors.grey,
+                                        )),
+                                  ),
+                                  Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 16.0, right: 16.0),
+                                      child: Text("Auto Fill",
+                                          style: TextStyle(fontSize: 20))),
+                                  Flexible(
+                                    child: SizedBox(
+                                        width: double.infinity,
+                                        child: Divider(color: Colors.grey)),
+                                  )
+                                ],
+                              )),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Expanded(
+                                  child: Card(
+                                      child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.timer),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              left: 4, right: 4),
+                                          child: Text(
+                                              style: Theme.of(context)
+                                                  .primaryTextTheme
+                                                  .headlineSmall,
+                                              "${detailStatus.getTime().inMinutes}:${detailStatus.getTime().inSeconds}"),
+                                        ),
+                                      ],
+                                    ),
+                                  )),
+                                ),
+                                Expanded(
+                                  child: Card(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8),
+                                      child: Text(
+                                          "Pouring Water = ${detailStatus.getWaterAmount()}"),
+                                    ),
+                                  ),
+                                )
+                              ]),
                           WithLabelDivider(label: "Process"),
-                          Column(children: detailStatus.buildProcessItem()),
+                          Column(
+                              children: [...detailStatus.buildProcessItem()]),
                           AddProcessItem(),
                         ],
                       ),
@@ -323,10 +387,31 @@ class RecipeDetailStatus extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateProcess(int id, String? label, int? value) {
+  int getWaterAmount() {
+    int sumWater = 0;
+    for (int i = 0; i < arrayProcessData.length; i++) {
+      if (arrayProcessData[i].label == "Pour") {
+        sumWater += arrayProcessData[i].value ?? 0;
+      }
+    }
+    return sumWater;
+  }
+
+  Duration getTime() {
+    Duration sumTime = Duration.zero;
+    for (int i = 0; i < arrayProcessData.length; i++) {
+      if (arrayProcessData[i].label == "Wait") {
+        sumTime += arrayProcessData[i].time ?? Duration.zero;
+      }
+    }
+    return sumTime;
+  }
+
+  void updateProcess(int id, String? label, int? value, Duration? time) {
     var target = findById(id);
     target.label = label ?? target.label;
     target.value = value ?? target.value;
+    target.time = time ?? target.time;
   }
 
   RecipeProcessData findById(int id) {
@@ -348,9 +433,9 @@ class RecipeDetailStatus extends ChangeNotifier {
   }
 
   List<ProcessItem> buildProcessItem() {
-    debugProcess();
     return arrayProcessData
-        .map((e) => ProcessItem(id: e.id, label: e.label, value: e.value))
+        .map((e) =>
+            ProcessItem(id: e.id, label: e.label, value: e.value, time: e.time))
         .toList();
   }
 
@@ -359,38 +444,6 @@ class RecipeDetailStatus extends ChangeNotifier {
       debugPrint(
           "[Status] ID: ${arrayProcessData[i].id}, label: ${arrayProcessData[i].label}, value: ${arrayProcessData[i].value}");
     }
-  }
-}
-
-class WithLabelDivider extends StatelessWidget {
-  final String label;
-  const WithLabelDivider({
-    Key? key,
-    required this.label,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Flexible(
-              child: SizedBox(
-                  width: double.infinity, child: Divider(color: Colors.black)),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-              child:
-                  Text(label, style: Theme.of(context).textTheme.headlineSmall),
-            ),
-            Flexible(
-              child: SizedBox(
-                  width: double.infinity, child: Divider(color: Colors.black)),
-            )
-          ],
-        ));
   }
 }
 
@@ -437,11 +490,14 @@ class _AddProcessItemState extends State<AddProcessItem>
             IconButton(
               icon: Icon(Icons.add),
               style: IconButton.styleFrom(
-                  side: BorderSide(color: Colors.black),
+                  side: BorderSide(
+                      color: detailStatus.isEdit ? Colors.black : Colors.grey),
                   shape: ContinuousRectangleBorder()),
-              onPressed: () {
-                detailStatus.publishNewProcess();
-              },
+              onPressed: detailStatus.isEdit
+                  ? () {
+                      detailStatus.publishNewProcess();
+                    }
+                  : null,
             )
           ]),
     );
