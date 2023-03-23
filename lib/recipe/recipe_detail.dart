@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:ffi';
-
 import 'package:daily_coffee/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -57,6 +54,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
   late final _controllers = <TextEditingController>[];
 
   late RecipeData edittingRecipeData;
+  List<ProcessItem> arrayProcessItem = [];
 
   @override
   void initState() {
@@ -129,6 +127,15 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
+        //FIXME: This is debug code
+        floatingActionButton: FloatingActionButton(
+            heroTag: "debugprint",
+            backgroundColor: Theme.of(context).primaryColor,
+            onPressed: () {
+              detailStatus.debugProcess();
+            },
+            child: Icon(Icons.list)),
+
         appBar: AppBar(
           backgroundColor: Theme.of(context).primaryColor,
           title: Text((isNew
@@ -183,13 +190,21 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
           children: [
             Flexible(
                 child: Container(
-                    color: Theme.of(context).primaryColorLight,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: ListView(
+              color: Theme.of(context).primaryColorLight,
+              child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: ListView(
+                    children: [
+                      //TODO: Alignment these items
+                      ExpansionTile(
+                        controlAffinity: ListTileControlAffinity.trailing,
+                        initiallyExpanded: true,
+                        title: Text(
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .headlineSmall,
+                            "Recipe Overview"),
                         children: [
-                          //TODO: Alignment these items
-                          WithLabelDivider(label: "Recipe Overview"),
                           RecipeEditTextField(
                             controller: _titleTextEditingController,
                             labelText: "Recipe Name",
@@ -198,91 +213,78 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                             onChanged: ((String value) =>
                                 {edittingRecipeData.title = value}),
                           ),
+                          SizedBox(height: 8),
                           Row(
                             children: [
                               Flexible(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.only(top: 8, right: 4),
-                                  child: RecipeEditTextField(
-                                    formatters: [
-                                      FilteringTextInputFormatter.digitsOnly
-                                    ],
-                                    controller: _waterTextEditingController,
-                                    keyboardType: TextInputType.number,
-                                    labelText: "Water",
-                                    suffixText: "g",
-                                    prefixIcon: Icon(Icons.water_drop),
-                                    onChanged: (String value) {
-                                      edittingRecipeData.water = value.isEmpty
-                                          ? null
-                                          : int.parse(value);
-                                    },
-                                  ),
+                                child: RecipeEditTextField(
+                                  formatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  controller: _waterTextEditingController,
+                                  keyboardType: TextInputType.number,
+                                  labelText: "Water",
+                                  suffixText: "g",
+                                  prefixIcon: Icon(Icons.water_drop),
+                                  onChanged: (String value) {
+                                    edittingRecipeData.water =
+                                        value.isEmpty ? null : int.parse(value);
+                                  },
                                 ),
                               ),
+                              SizedBox(
+                                width: 8,
+                              ),
                               Flexible(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.only(top: 8.0, left: 4),
-                                  child: RecipeEditTextField(
-                                    controller:
-                                        _temperatureTextEditingController,
-                                    formatters: [
-                                      FilteringTextInputFormatter.digitsOnly
-                                    ],
-                                    keyboardType: TextInputType.number,
-                                    labelText: "Temperature",
-                                    suffixText: "℃",
-                                    prefixIcon: Icon(Icons.thermostat),
-                                    onChanged: (String value) {
-                                      edittingRecipeData.temperature =
-                                          value.isEmpty
-                                              ? null
-                                              : int.parse(value);
-                                    },
-                                  ),
+                                child: RecipeEditTextField(
+                                  controller: _temperatureTextEditingController,
+                                  formatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  keyboardType: TextInputType.number,
+                                  labelText: "Temperature",
+                                  suffixText: "℃",
+                                  prefixIcon: Icon(Icons.thermostat),
+                                  onChanged: (String value) {
+                                    edittingRecipeData.temperature =
+                                        value.isEmpty ? null : int.parse(value);
+                                  },
                                 ),
                               )
                             ],
                           ),
+                          SizedBox(
+                            height: 8,
+                          ),
                           Row(
                             children: [
                               Flexible(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.only(top: 8, right: 4),
-                                  child: RecipeEditTextField(
-                                    formatters: [
-                                      FilteringTextInputFormatter.digitsOnly
-                                    ],
-                                    controller: _beanTextEditingController,
-                                    keyboardType: TextInputType.number,
-                                    labelText: "Bean",
-                                    suffixText: "g",
-                                    prefixIcon: Icon(Icons.scale),
-                                    onChanged: (value) {
-                                      edittingRecipeData.bean = value.isEmpty
-                                          ? null
-                                          : int.parse(value);
-                                    },
-                                  ),
+                                child: RecipeEditTextField(
+                                  formatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  controller: _beanTextEditingController,
+                                  keyboardType: TextInputType.number,
+                                  labelText: "Bean",
+                                  suffixText: "g",
+                                  prefixIcon: Icon(Icons.scale),
+                                  onChanged: (value) {
+                                    edittingRecipeData.bean =
+                                        value.isEmpty ? null : int.parse(value);
+                                  },
                                 ),
                               ),
+                              SizedBox(width: 8),
                               Flexible(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.only(top: 8.0, left: 4),
-                                  child: RecipeEditTextField(
-                                    controller: _grainTextEditingController,
-                                    keyboardType: TextInputType.text,
-                                    labelText: "grain",
-                                    prefixIcon: Icon(Icons.grain),
-                                    onChanged: (value) {
-                                      edittingRecipeData.grain =
-                                          value.isEmpty ? "" : value;
-                                    },
-                                  ),
+                                child: RecipeEditTextField(
+                                  controller: _grainTextEditingController,
+                                  keyboardType: TextInputType.text,
+                                  labelText: "grain",
+                                  prefixIcon: Icon(Icons.grain),
+                                  onChanged: (value) {
+                                    edittingRecipeData.grain =
+                                        value.isEmpty ? "" : value;
+                                  },
                                 ),
                               )
                             ],
@@ -298,63 +300,60 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                         child: Divider(
                                           color: Colors.grey,
                                         )),
-                                  ),
-                                  Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 16.0, right: 16.0),
-                                      child: Text("Auto Fill",
-                                          style: TextStyle(fontSize: 20))),
-                                  Flexible(
-                                    child: SizedBox(
-                                        width: double.infinity,
-                                        child: Divider(color: Colors.grey)),
                                   )
                                 ],
                               )),
                           Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Expanded(
-                                  child: Card(
-                                      child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(Icons.timer),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 4, right: 4),
-                                          child: Text(
-                                              style: Theme.of(context)
-                                                  .primaryTextTheme
-                                                  .headlineSmall,
-                                              "${detailStatus.getTime().inMinutes}:${detailStatus.getTime().inSeconds}"),
-                                        ),
-                                      ],
-                                    ),
-                                  )),
-                                ),
-                                Expanded(
-                                  child: Card(
-                                    child: Padding(
-                                      padding: EdgeInsets.all(8),
-                                      child: Text(
-                                          "Pouring Water = ${detailStatus.getWaterAmount()}"),
-                                    ),
-                                  ),
-                                )
-                              ]),
-                          WithLabelDivider(label: "Process"),
-                          Column(
-                              children: [...detailStatus.buildProcessItem()]),
-                          AddProcessItem(),
+                            children: [
+                              Flexible(
+                                  child: TextField(
+                                readOnly: true,
+                                decoration: InputDecoration(
+                                    prefixIcon: Icon(Icons.timer),
+                                    labelText:
+                                        "${detailStatus.getTime().inMinutes}:${detailStatus.getTime().inSeconds}"),
+                              )),
+                              SizedBox(
+                                width: 8,
+                              ),
+                              Flexible(
+                                  child: TextField(
+                                readOnly: true,
+                                decoration: InputDecoration(
+                                    prefixIcon: Icon(Icons.coffee),
+                                    labelText:
+                                        "${detailStatus.getWaterAmount()}"),
+                              ))
+                            ],
+                          ),
                         ],
                       ),
-                    )))
+                      ExpansionTile(
+                        title: Text(
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .headlineSmall,
+                            "Process"),
+                        children: [
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: detailStatus.arrayProcessData.length,
+                                itemBuilder: (context, index) {
+                                  return ProcessItem.fromData(null,
+                                      detailStatus.arrayProcessData[index]);
+                                },
+                              ),
+                            ],
+                          ),
+                          AddProcessItem()
+                        ],
+                      ),
+                    ],
+                  )),
+            ))
           ],
         ),
       ),
@@ -366,18 +365,20 @@ class RecipeDetailStatus extends ChangeNotifier {
   var nextProcessID = 0;
   var isEdit = true;
   late List<RecipeProcessData> arrayProcessData;
+
   RecipeDetailStatus(bool b, List<RecipeProcessData>? ps) {
+    int i = 0;
     isEdit = b;
     arrayProcessData = ps ?? [];
+
+    for (i = 0; i < arrayProcessData.length; i++) {
+      arrayProcessData[i].id = i;
+    }
+    nextProcessID = i;
   }
 
   void toggleEdit() {
     isEdit = !isEdit;
-    notifyListeners();
-  }
-
-  void setEdit(bool b) {
-    isEdit = b;
     notifyListeners();
   }
 
@@ -412,6 +413,11 @@ class RecipeDetailStatus extends ChangeNotifier {
     target.label = label ?? target.label;
     target.value = value ?? target.value;
     target.time = time ?? target.time;
+
+    debugPrint(
+        "[Status Updated] ${target.id}, ${target.label}, ${target.value}");
+
+    notifyListeners();
   }
 
   RecipeProcessData findById(int id) {
@@ -426,18 +432,14 @@ class RecipeDetailStatus extends ChangeNotifier {
   void removeProcess(int id) {
     for (int i = 0; i < arrayProcessData.length; i++) {
       if (arrayProcessData[i].id == id) {
-        arrayProcessData.remove(arrayProcessData[i]);
+        debugPrint("[Remove Status] ${arrayProcessData[i].getString()}");
+        arrayProcessData.removeAt(i);
+        notifyListeners();
       }
     }
-    notifyListeners();
   }
 
-  List<ProcessItem> buildProcessItem() {
-    return arrayProcessData
-        .map((e) =>
-            ProcessItem(id: e.id, label: e.label, value: e.value, time: e.time))
-        .toList();
-  }
+  void buildProcessItem() {}
 
   void debugProcess() {
     for (int i = 0; i < arrayProcessData.length; i++) {

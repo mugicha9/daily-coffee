@@ -77,7 +77,6 @@ class CoffeeRecipeCard extends StatelessWidget {
               ),
             )),
         onTap: () {
-          //TODO: Make Edit Page. (Load existed Recipe and fill by it)
           Navigator.push(
               context,
               MaterialPageRoute(

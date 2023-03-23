@@ -5,29 +5,40 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class RecipeProcessData {
-  final int id;
+  int id;
   String? label;
   int? value;
   Duration? time;
 
   RecipeProcessData({required this.id, this.label, this.value, this.time});
+
+  String getString() {
+    return "[ProcessData] id: $id, label: $label, value: $value";
+  }
 }
 
 //TODO: Improve UI Design
 
 class ProcessItem extends StatefulWidget {
-  final int id;
-  final String? label;
-  final int? value;
-  final Duration? time;
+  int id;
+  String? label;
+  int? value;
+  Duration? time;
 
-  const ProcessItem({
+  ProcessItem({
     Key? key,
     required this.id,
     required this.label,
     required this.value,
     required this.time,
   }) : super(key: key);
+
+  ProcessItem.fromData(Key? key, RecipeProcessData rpd)
+      : id = rpd.id,
+        label = rpd.label,
+        value = rpd.value,
+        time = rpd.time,
+        super(key: key);
 
   @override
   State<ProcessItem> createState() => _ProcessItemState();
@@ -48,6 +59,9 @@ class _ProcessItemState extends State<ProcessItem> {
     label = widget.label;
     value = widget.value;
 
+    debugPrint(
+        "[ProcessItem Init] id: ${widget.id}, label: ($label, ${widget.label}), value: ($value, ${widget.value})");
+
     if (value != null) _textController.text = value.toString();
 
     showText = label ?? "Pour";
@@ -67,11 +81,19 @@ class _ProcessItemState extends State<ProcessItem> {
   }
 
   @override
+  void dispose() {
+    debugPrint(
+        "[ProcessItem Dispose] id: ${widget.id}, label: ($label, ${widget.label}), showText: $showText, value: ($value, ${widget.value})");
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var recipeDetailStatus = context.watch<RecipeDetailStatus>();
     return GestureDetector(
       onTap: () => debugPrint(
-          "[ProcessItem] label: $label, showText: $showText, value: $value"),
+          "[ProcessItem] id: ${widget.id}, label: ($label, ${widget.label}), showText: $showText, value: ($value, ${widget.value})"),
       child: Card(
         color: Color.fromRGBO(212, 207, 207, 1),
         child: Padding(
@@ -133,7 +155,7 @@ class _ProcessItemState extends State<ProcessItem> {
                                     recipeDetailStatus.updateProcess(
                                         widget.id,
                                         null,
-                                        null,
+                                        this.value,
                                         Duration(seconds: this.value ?? 0));
                                     break;
                                   case "Stir":

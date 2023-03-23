@@ -33,6 +33,8 @@ class MainApp extends StatelessWidget {
                     color: Colors.black,
                   )),
               focusColor: Colors.white,
+              //divide
+              dividerColor: Colors.transparent,
               //bottomNavigationBar
               bottomNavigationBarTheme: const BottomNavigationBarThemeData(
                 backgroundColor: Color.fromRGBO(128, 95, 83, 1),
