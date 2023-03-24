@@ -37,6 +37,10 @@ class CoffeeRecipeCard extends StatelessWidget {
           icon: const Icon(Icons.timer_rounded),
           text: "${recipe.timeSecond}s"));
     }
+    if (recipe.yield != null) {
+      ingredientCards.add(IngredientCard(
+          icon: const Icon(Icons.coffee_rounded), text: "${recipe.yield}ml"));
+    }
 
     return GestureDetector(
         child: Card(

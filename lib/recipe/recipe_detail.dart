@@ -127,6 +127,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
         "${detailStatus.getTime().inMinutes % 60}:${detailStatus.getTime().inSeconds % 60}";
     _yieldTextEditingController.text = "${detailStatus.getWaterAmount()}";
     edittingRecipeData.timeSecond = detailStatus.getTime().inSeconds;
+    edittingRecipeData.yield = detailStatus.getWaterAmount();
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(

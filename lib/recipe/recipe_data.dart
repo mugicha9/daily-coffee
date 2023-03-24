@@ -18,6 +18,7 @@ class RecipeData {
   int? temperature;
   int? bean;
   int? timeSecond;
+  int? yield;
   String? grain;
   List<RecipeProcessData>? processSequence;
 
@@ -29,6 +30,7 @@ class RecipeData {
     this.bean,
     this.grain,
     this.timeSecond,
+    this.yield,
     this.processSequence,
   });
 
@@ -44,6 +46,7 @@ class RecipeData {
           int? bean,
           String? grain,
           int? timeSecond,
+          int? yield,
           List<RecipeProcessData>? processSequence}) =>
       RecipeData(
         id: id ?? this.id,
@@ -53,6 +56,7 @@ class RecipeData {
         bean: bean ?? this.bean,
         grain: grain ?? this.grain,
         timeSecond: timeSecond ?? this.timeSecond,
+        yield: yield ?? this.yield,
         processSequence: processSequence ?? this.processSequence,
       );
 
