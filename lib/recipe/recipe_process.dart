@@ -4,6 +4,8 @@ import 'recipe_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../dialog/ok_cancel_dialog.dart';
+
 class RecipeProcessData {
   int id;
   String? label;
@@ -53,14 +55,12 @@ class ProcessItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(
-        "[ProcessItem Build] id: ${recipeProcessData.id}, label: ${recipeProcessData.label}, value: ${recipeProcessData.value}");
     final recipeDetailStatus = context.read<RecipeDetailStatus>();
     return GestureDetector(
       onTap: () => debugPrint(
           "[ProcessItem] id: ${recipeProcessData.id}, label: ${recipeProcessData.label}, value: ${recipeProcessData.value}"),
       child: Card(
-        color: Color.fromRGBO(212, 207, 207, 1),
+        color: const Color.fromRGBO(212, 207, 207, 1),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
@@ -70,40 +70,43 @@ class ProcessItem extends StatelessWidget {
             children: [
               Visibility(
                   visible: recipeDetailStatus.isEdit,
-                  child: Icon(Icons.drag_handle)),
+                  child: const Icon(Icons.drag_handle)),
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: DropdownButton(
                   value: recipeProcessData.label ?? "Pour",
+                  dropdownColor: Colors.white,
                   items: [
                     // TODO: Use Dialog?
                     DropdownMenuItem(
+                        value: "Pour",
                         child: Row(
                           children: [
-                            Icon(Icons.water_drop_outlined),
-                            SizedBox(width: 8),
-                            Text("Pour"),
+                            const Icon(Icons.water_drop_outlined),
+                            const SizedBox(width: 8),
+                            const Text("Pour"),
                           ],
-                        ),
-                        value: "Pour"),
+                        )),
+
                     DropdownMenuItem(
-                        child: Row(
-                          children: [
-                            Icon(Icons.hourglass_top),
-                            SizedBox(width: 8),
-                            Text("Wait"),
-                          ],
-                        ),
-                        value: "Wait"),
-                    DropdownMenuItem(
+                      value: "Wait",
                       child: Row(
                         children: [
-                          Icon(Icons.replay_circle_filled),
-                          SizedBox(width: 8),
-                          Text("Stir"),
+                          const Icon(Icons.hourglass_top),
+                          const SizedBox(width: 8),
+                          const Text("Wait"),
                         ],
                       ),
+                    ),
+                    DropdownMenuItem(
                       value: "Stir",
+                      child: Row(
+                        children: [
+                          const Icon(Icons.replay_circle_filled),
+                          const SizedBox(width: 8),
+                          const Text("Stir"),
+                        ],
+                      ),
                     )
                   ],
                   onChanged: recipeDetailStatus.isEdit
@@ -148,7 +151,7 @@ class ProcessItem extends StatelessWidget {
                       }
                     },
                     decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.onetwothree),
+                        prefixIcon: const Icon(Icons.onetwothree),
                         suffixText: getSuffixText()),
                   ),
                 ),
@@ -156,13 +159,23 @@ class ProcessItem extends StatelessWidget {
               Visibility(
                 visible: recipeDetailStatus.isEdit,
                 child: IconButton(
-                    onPressed: () {
-                      recipeDetailStatus.removeProcess(recipeProcessData);
-                    },
-                    icon: Icon(Icons.remove),
-                    style: IconButton.styleFrom(
-                        side: BorderSide(color: Colors.black),
-                        shape: CircleBorder())),
+                  onPressed: () async {
+                    final bool? dialogResult = await showDialog<bool>(
+                      context: context,
+                      builder: (context) {
+                        return const OkCancelDialog(
+                            title: "CoffeeRecipeManager",
+                            content: "Want to delete?");
+                      },
+                    );
+                    if (dialogResult != null) {
+                      if (dialogResult) {
+                        recipeDetailStatus.removeProcess(recipeProcessData);
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.remove),
+                ),
               )
             ],
           ),

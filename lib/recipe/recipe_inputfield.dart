@@ -36,7 +36,7 @@ class RecipeEditTextField extends StatelessWidget {
         inputFormatters: formatters,
         enabled: detailStatus.isEdit,
         decoration: InputDecoration(
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
             labelText: labelText,
             hintText: hintText,
             suffixText: suffixText,

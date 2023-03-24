@@ -1,4 +1,5 @@
 import 'package:daily_coffee/app.dart';
+import 'package:daily_coffee/dialog/ok_cancel_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -139,20 +140,35 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
               : (detailStatus.isEdit ? "Edit" : edittingRecipeData.title))),
           actions: [
             IconButton(
-                onPressed: () {
-                  if (!isNew) mainStatus.removeById(recipeData.id);
-                  Navigator.popUntil(context, (route) => route.isFirst);
+                onPressed: () async {
+                  final bool? dialogResult = await showDialog<bool>(
+                    context: context,
+                    builder: (context) {
+                      return const OkCancelDialog(
+                        title: "CoffeeRecipeManager",
+                        content: "This recipe will not be saved",
+                      );
+                    },
+                  );
+                  if (dialogResult != null) {
+                    if (dialogResult) {
+                      if (!isNew) mainStatus.removeById(recipeData.id);
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                    }
+                  }
                 },
-                icon: Icon(Icons.delete)),
+                icon: const Icon(Icons.delete)),
             Visibility(
                 visible: !isNew && detailStatus.isEdit,
-                child: IconButton(
-                    onPressed: () {
+                child: const IconButton(
+                    disabledColor: Colors.grey,
+                    onPressed: /*() {
                       setState(() {
                         initTextField();
                         initEdittingRecipeData();
                       });
-                    },
+                    }*/
+                        null,
                     icon: Icon(Icons.restore))),
             Visibility(
                 visible: !detailStatus.isEdit,
@@ -160,7 +176,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                     onPressed: () {
                       detailStatus.toggleEdit();
                     },
-                    icon: Icon(Icons.edit))),
+                    icon: const Icon(Icons.edit))),
             Visibility(
               visible: detailStatus.isEdit,
               child: IconButton(
@@ -178,7 +194,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                         detailStatus.getArrayProcessData();
                     detailStatus.toggleEdit();
                   },
-                  icon: Icon(Icons.check)),
+                  icon: const Icon(Icons.check)),
             ),
           ],
         ),
@@ -201,18 +217,18 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                   .headlineSmall,
                               "Recipe Overview"),
                           children: [
-                            SizedBox(
+                            const SizedBox(
                               height: 8,
                             ),
                             RecipeEditTextField(
                               controller: _titleTextEditingController,
                               labelText: "Recipe Name",
                               hintText: "Enter Recipe Name",
-                              prefixIcon: Icon(Icons.abc),
+                              prefixIcon: const Icon(Icons.abc),
                               onChanged: ((String value) =>
                                   {edittingRecipeData.title = value}),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Row(
                               children: [
                                 Flexible(
@@ -224,7 +240,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                     keyboardType: TextInputType.number,
                                     labelText: "Water",
                                     suffixText: "g",
-                                    prefixIcon: Icon(Icons.water_drop),
+                                    prefixIcon: const Icon(Icons.water_drop),
                                     onChanged: (String value) {
                                       edittingRecipeData.water = value.isEmpty
                                           ? null
@@ -232,7 +248,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                     },
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 8,
                                 ),
                                 Flexible(
@@ -245,7 +261,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                     keyboardType: TextInputType.number,
                                     labelText: "Temperature",
                                     suffixText: "℃",
-                                    prefixIcon: Icon(Icons.thermostat),
+                                    prefixIcon: const Icon(Icons.thermostat),
                                     onChanged: (String value) {
                                       edittingRecipeData.temperature =
                                           value.isEmpty
@@ -256,7 +272,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                 )
                               ],
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 8,
                             ),
                             Row(
@@ -270,7 +286,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                     keyboardType: TextInputType.number,
                                     labelText: "Bean",
                                     suffixText: "g",
-                                    prefixIcon: Icon(Icons.scale),
+                                    prefixIcon: const Icon(Icons.scale),
                                     onChanged: (value) {
                                       edittingRecipeData.bean = value.isEmpty
                                           ? null
@@ -278,13 +294,13 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                     },
                                   ),
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Flexible(
                                   child: RecipeEditTextField(
                                     controller: _grainTextEditingController,
                                     keyboardType: TextInputType.text,
                                     labelText: "grain",
-                                    prefixIcon: Icon(Icons.grain),
+                                    prefixIcon: const Icon(Icons.grain),
                                     onChanged: (value) {
                                       edittingRecipeData.grain =
                                           value.isEmpty ? "" : value;
@@ -296,7 +312,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Flexible(
+                                const Flexible(
                                   child: SizedBox(
                                       width: double.infinity,
                                       child: Divider(
@@ -311,19 +327,19 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                     child: TextField(
                                   controller: _takeTimeTextEditingController,
                                   readOnly: true,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                       border: OutlineInputBorder(),
                                       prefixIcon: Icon(Icons.timer),
                                       labelText: "take"),
                                 )),
-                                SizedBox(
+                                const SizedBox(
                                   width: 8,
                                 ),
                                 Flexible(
                                     child: TextField(
                                   controller: _yieldTextEditingController,
                                   readOnly: true,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                       border: OutlineInputBorder(),
                                       prefixIcon: Icon(Icons.coffee),
                                       suffixText: "g",
@@ -344,11 +360,13 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                               Theme(
                                 data: ThemeData(
                                   //transparent background for ReorderableListView
+                                  useMaterial3: true,
                                   canvasColor: Colors.transparent,
                                 ),
                                 child: ReorderableListView(
                                   buildDefaultDragHandles: detailStatus.isEdit,
                                   shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
                                   children: detailStatus.arrayProcessItemField
                                       .map((e) {
                                     return ProcessItem(
@@ -361,7 +379,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                   },
                                 ),
                               ),
-                              AddProcessItem()
+                              const AddProcessItem()
                             ]),
                           ],
                         ),
@@ -382,14 +400,13 @@ class RecipeDetailStatus extends ChangeNotifier {
   List<ProcessItemField> arrayProcessItemField = [];
 
   RecipeDetailStatus(bool b, List<RecipeProcessData>? ps) {
-    int i = 0;
     isEdit = b;
 
     ps?.asMap().forEach((i, value) {
       arrayProcessItemField.add(ProcessItemField(
           i, value, TextEditingController(text: value.value?.toString())));
     });
-    nextProcessID = i;
+    nextProcessID = arrayProcessItemField.length;
   }
 
   void toggleEdit() {
@@ -539,11 +556,11 @@ class _AddProcessItemState extends State<AddProcessItem>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IconButton(
-              icon: Icon(Icons.add),
+              icon: const Icon(Icons.add),
               style: IconButton.styleFrom(
                   side: BorderSide(
                       color: detailStatus.isEdit ? Colors.black : Colors.grey),
-                  shape: ContinuousRectangleBorder()),
+                  shape: const ContinuousRectangleBorder()),
               onPressed: detailStatus.isEdit
                   ? () {
                       detailStatus.addNewProcess();
