@@ -17,83 +17,48 @@ class RecipeProcessData {
   }
 }
 
-//TODO: Improve UI Design
+class ProcessItemField {
+  final int id;
+  final RecipeProcessData recipeProcessData;
+  final TextEditingController controller;
 
-class ProcessItem extends StatefulWidget {
-  int id;
-  String? label;
-  int? value;
-  Duration? time;
+  ProcessItemField(this.id, this.recipeProcessData, this.controller);
 
-  ProcessItem({
-    Key? key,
-    required this.id,
-    required this.label,
-    required this.value,
-    required this.time,
-  }) : super(key: key);
-
-  ProcessItem.fromData(Key? key, RecipeProcessData rpd)
-      : id = rpd.id,
-        label = rpd.label,
-        value = rpd.value,
-        time = rpd.time,
-        super(key: key);
-
-  @override
-  State<ProcessItem> createState() => _ProcessItemState();
+  void dispose() {
+    controller.dispose();
+  }
 }
 
-class _ProcessItemState extends State<ProcessItem> {
-  final TextEditingController _textController = TextEditingController();
+class ProcessItem extends StatelessWidget {
+  final TextEditingController textController;
+  final RecipeProcessData recipeProcessData;
 
-  late String showText;
-  late String suffixText;
+  const ProcessItem(
+      {Key? key, required this.recipeProcessData, required this.textController})
+      : super(key: key);
 
-  String? label;
-  int? value;
-
-  @override
-  void initState() {
-    super.initState();
-    label = widget.label;
-    value = widget.value;
-
-    debugPrint(
-        "[ProcessItem Init] id: ${widget.id}, label: ($label, ${widget.label}), value: ($value, ${widget.value})");
-
-    if (value != null) _textController.text = value.toString();
-
-    showText = label ?? "Pour";
-
-    switch (showText) {
+  String getSuffixText() {
+    var label = recipeProcessData.label ?? "Pour";
+    switch (label) {
       case "Pour":
-        suffixText = "g";
-        break;
+        return "g";
       case "Wait":
-        suffixText = "s";
-        break;
+        return "s";
       case "Stir":
-        suffixText = "Times";
-        break;
+        return "Times";
       default:
+        return "";
     }
   }
 
   @override
-  void dispose() {
-    debugPrint(
-        "[ProcessItem Dispose] id: ${widget.id}, label: ($label, ${widget.label}), showText: $showText, value: ($value, ${widget.value})");
-    _textController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    var recipeDetailStatus = context.watch<RecipeDetailStatus>();
+    debugPrint(
+        "[ProcessItem Build] id: ${recipeProcessData.id}, label: ${recipeProcessData.label}, value: ${recipeProcessData.value}");
+    final recipeDetailStatus = context.watch<RecipeDetailStatus>();
     return GestureDetector(
       onTap: () => debugPrint(
-          "[ProcessItem] id: ${widget.id}, label: ($label, ${widget.label}), showText: $showText, value: ($value, ${widget.value})"),
+          "[ProcessItem] id: ${recipeProcessData.id}, label: ${recipeProcessData.label}, value: ${recipeProcessData.value}"),
       child: Card(
         color: Color.fromRGBO(212, 207, 207, 1),
         child: Padding(
@@ -106,7 +71,7 @@ class _ProcessItemState extends State<ProcessItem> {
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: DropdownButton(
-                  value: showText,
+                  value: recipeProcessData.label ?? "Pour",
                   items: [
                     // TODO: Use Dialog
                     DropdownMenuItem(
@@ -139,33 +104,22 @@ class _ProcessItemState extends State<ProcessItem> {
                     )
                   ],
                   onChanged: recipeDetailStatus.isEdit
-                      ? ((String? value) => {
-                            setState(
-                              () {
-                                showText = value ?? "NULL";
-                                label = value;
-                                recipeDetailStatus.updateProcess(
-                                    widget.id, showText, null, null);
-                                switch (value) {
-                                  case "Pour":
-                                    suffixText = "g";
-                                    break;
-                                  case "Wait":
-                                    suffixText = "s";
-                                    recipeDetailStatus.updateProcess(
-                                        widget.id,
-                                        null,
-                                        this.value,
-                                        Duration(seconds: this.value ?? 0));
-                                    break;
-                                  case "Stir":
-                                    suffixText = "Times";
-                                    break;
-                                  default:
-                                }
-                              },
-                            )
-                          })
+                      ? ((String? value) {
+                          recipeDetailStatus.updateProcess(
+                              recipeProcessData.id, value, null, null);
+                          if (value == "Wait") {
+                            recipeDetailStatus.updateProcess(
+                                recipeProcessData.id,
+                                null,
+                                textController.text.isEmpty
+                                    ? null
+                                    : int.parse(textController.text),
+                                Duration(
+                                    seconds: textController.text.isEmpty
+                                        ? 0
+                                        : int.parse(textController.text)));
+                          }
+                        })
                       : null,
                 ),
               ),
@@ -174,22 +128,25 @@ class _ProcessItemState extends State<ProcessItem> {
                   padding: const EdgeInsets.only(left: 8.0, right: 8),
                   child: TextField(
                     keyboardType: TextInputType.number,
-                    controller: _textController,
+                    controller: textController,
                     enabled: recipeDetailStatus.isEdit,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onChanged: (String _value) {
-                      value = _value.isEmpty ? 0 : int.parse(_value);
-                      if (showText != "Wait") {
-                        recipeDetailStatus.updateProcess(
-                            widget.id, showText, value, null);
+                      var value = _value.isEmpty ? 0 : int.parse(_value);
+                      if (recipeProcessData.label != "Wait") {
+                        recipeDetailStatus.updateProcess(recipeProcessData.id,
+                            recipeProcessData.label, value, null);
                       } else {
-                        recipeDetailStatus.updateProcess(widget.id, showText,
-                            value, Duration(seconds: value ?? 0));
+                        recipeDetailStatus.updateProcess(
+                            recipeProcessData.id,
+                            recipeProcessData.label,
+                            value,
+                            Duration(seconds: value));
                       }
                     },
                     decoration: InputDecoration(
                         prefixIcon: Icon(Icons.onetwothree),
-                        suffixText: suffixText),
+                        suffixText: getSuffixText()),
                   ),
                 ),
               ),
@@ -197,7 +154,7 @@ class _ProcessItemState extends State<ProcessItem> {
                 visible: recipeDetailStatus.isEdit,
                 child: IconButton(
                     onPressed: () {
-                      recipeDetailStatus.removeProcess(widget.id);
+                      recipeDetailStatus.removeProcess(recipeProcessData);
                     },
                     icon: Icon(Icons.remove),
                     style: IconButton.styleFrom(
