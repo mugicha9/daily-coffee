@@ -124,22 +124,13 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     final mainStatus = context.watch<MainStatus>();
     var detailStatus = context.watch<RecipeDetailStatus>();
     _takeTimeTextEditingController.text =
-        "${detailStatus.getTime().inMinutes}:${detailStatus.getTime().inSeconds}";
+        "${detailStatus.getTime().inMinutes % 60}:${detailStatus.getTime().inSeconds % 60}";
     _yieldTextEditingController.text = "${detailStatus.getWaterAmount()}";
     edittingRecipeData.timeSecond = detailStatus.getTime().inSeconds;
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        //FIXME: This is debug code
-        floatingActionButton: FloatingActionButton(
-            heroTag: "debugprint",
-            backgroundColor: Theme.of(context).primaryColor,
-            onPressed: () {
-              detailStatus.debugProcess();
-            },
-            child: Icon(Icons.list)),
-
         appBar: AppBar(
           backgroundColor: Theme.of(context).primaryColor,
           title: Text((isNew
@@ -349,18 +340,25 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                               "Process"),
                           children: [
                             Column(mainAxisSize: MainAxisSize.min, children: [
-                              ListView.builder(
-                                shrinkWrap: true,
-                                itemCount:
-                                    detailStatus.arrayProcessItemField.length,
-                                itemBuilder: (context, index) {
-                                  ProcessItemField pif =
-                                      detailStatus.arrayProcessItemField[index];
-                                  return ProcessItem(
-                                    recipeProcessData: pif.recipeProcessData,
-                                    textController: pif.controller,
-                                  );
-                                },
+                              Theme(
+                                data: ThemeData(
+                                  //transparent background for ReorderableListView
+                                  canvasColor: Colors.transparent,
+                                ),
+                                child: ReorderableListView(
+                                  buildDefaultDragHandles: detailStatus.isEdit,
+                                  shrinkWrap: true,
+                                  children: detailStatus.arrayProcessItemField
+                                      .map((e) {
+                                    return ProcessItem(
+                                        key: Key("${e.id}"),
+                                        recipeProcessData: e.recipeProcessData,
+                                        textController: e.controller);
+                                  }).toList(),
+                                  onReorder: (oldIndex, newIndex) {
+                                    detailStatus.onReorder(oldIndex, newIndex);
+                                  },
+                                ),
                               ),
                               AddProcessItem()
                             ]),
@@ -417,6 +415,40 @@ class RecipeDetailStatus extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateProcess(int id, String? label, int? value, Duration? time) {
+    var target = findById(id);
+    target.label = label ?? target.label;
+    target.value = value ?? target.value;
+    target.time = time ?? target.time;
+
+    debugPrint(
+        "[Status Updated] ${target.id}, ${target.label}, ${target.value}");
+
+    notifyListeners();
+  }
+
+  void onReorder(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final ProcessItemField item = arrayProcessItemField.removeAt(oldIndex);
+    arrayProcessItemField.insert(newIndex, item);
+    for (int i = 0; i < arrayProcessItemField.length; i++) {
+      arrayProcessItemField[i].recipeProcessData.id = i;
+    }
+
+    notifyListeners();
+  }
+
+  RecipeProcessData findById(int id) {
+    for (int i = 0; i < arrayProcessItemField.length; i++) {
+      if (arrayProcessItemField[i].recipeProcessData.id == id) {
+        return arrayProcessItemField[i].recipeProcessData;
+      }
+    }
+    throw Error();
+  }
+
   List<RecipeProcessData> getArrayProcessData() {
     List<RecipeProcessData> ret = [];
     for (var item in arrayProcessItemField) {
@@ -446,31 +478,11 @@ class RecipeDetailStatus extends ChangeNotifier {
     return sumTime;
   }
 
-  void updateProcess(int id, String? label, int? value, Duration? time) {
-    var target = findById(id);
-    target.label = label ?? target.label;
-    target.value = value ?? target.value;
-    target.time = time ?? target.time;
-
-    debugPrint(
-        "[Status Updated] ${target.id}, ${target.label}, ${target.value}");
-
-    notifyListeners();
-  }
-
-  RecipeProcessData findById(int id) {
-    for (int i = 0; i < arrayProcessItemField.length; i++) {
-      if (arrayProcessItemField[i].id == id) {
-        return arrayProcessItemField[i].recipeProcessData;
-      }
-    }
-    throw Error();
-  }
-
   List<ProcessItem> buildProcessItem() {
     return arrayProcessItemField
         .map(
           (e) => ProcessItem(
+              key: Key("${e.id}"),
               recipeProcessData: e.recipeProcessData,
               textController: e.controller),
         )

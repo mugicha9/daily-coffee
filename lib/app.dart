@@ -16,33 +16,34 @@ class MainApp extends StatelessWidget {
         create: (context) => MainStatus(),
         child: MaterialApp(
           theme: ThemeData(
-              useMaterial3: true,
-              //AppBar
-              appBarTheme: const AppBarTheme(foregroundColor: Colors.white),
-              //FAB
-              floatingActionButtonTheme: const FloatingActionButtonThemeData(
-                  foregroundColor: Colors.white),
-              //primary
-              primaryColor: Colors.brown,
-              primaryColorLight: Color.fromRGBO(213, 206, 198, 1),
-              primaryColorDark: Colors.grey,
-              //text
-              primaryTextTheme: const TextTheme(
-                  titleSmall: TextStyle(color: Colors.white),
-                  headlineSmall: TextStyle(
-                    color: Colors.black,
-                  )),
-              focusColor: Colors.white,
-              //divide
-              dividerColor: Colors.transparent,
-              //bottomNavigationBar
-              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-                backgroundColor: Color.fromRGBO(128, 95, 83, 1),
-                selectedItemColor: Colors.white,
-                unselectedItemColor: Color.fromRGBO(176, 159, 152, 1),
-              ),
-              //scaffold
-              scaffoldBackgroundColor: Color.fromRGBO(128, 95, 83, 1)),
+            useMaterial3: true,
+            //AppBar
+            appBarTheme: const AppBarTheme(foregroundColor: Colors.white),
+            //FAB
+            floatingActionButtonTheme: const FloatingActionButtonThemeData(
+                foregroundColor: Colors.white),
+            //primary
+            primaryColor: Colors.brown,
+            primaryColorLight: Color.fromRGBO(213, 206, 198, 1),
+            primaryColorDark: Colors.grey,
+            //text
+            primaryTextTheme: const TextTheme(
+                titleSmall: TextStyle(color: Colors.white),
+                headlineSmall: TextStyle(
+                  color: Colors.black,
+                )),
+            focusColor: Colors.white,
+            //divide
+            dividerColor: Colors.transparent,
+            //bottomNavigationBar
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+              backgroundColor: Color.fromRGBO(128, 95, 83, 1),
+              selectedItemColor: Colors.white,
+              unselectedItemColor: Color.fromRGBO(176, 159, 152, 1),
+            ),
+            //scaffold
+            scaffoldBackgroundColor: Color.fromRGBO(128, 95, 83, 1),
+          ),
           title: "Daily-Coffe",
           home: const MyHomePage(),
         ));

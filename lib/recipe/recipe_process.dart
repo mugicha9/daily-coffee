@@ -55,7 +55,7 @@ class ProcessItem extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint(
         "[ProcessItem Build] id: ${recipeProcessData.id}, label: ${recipeProcessData.label}, value: ${recipeProcessData.value}");
-    final recipeDetailStatus = context.watch<RecipeDetailStatus>();
+    final recipeDetailStatus = context.read<RecipeDetailStatus>();
     return GestureDetector(
       onTap: () => debugPrint(
           "[ProcessItem] id: ${recipeProcessData.id}, label: ${recipeProcessData.label}, value: ${recipeProcessData.value}"),
@@ -68,12 +68,15 @@ class ProcessItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
+              Visibility(
+                  visible: recipeDetailStatus.isEdit,
+                  child: Icon(Icons.drag_handle)),
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: DropdownButton(
                   value: recipeProcessData.label ?? "Pour",
                   items: [
-                    // TODO: Use Dialog
+                    // TODO: Use Dialog?
                     DropdownMenuItem(
                         child: Row(
                           children: [
@@ -105,8 +108,8 @@ class ProcessItem extends StatelessWidget {
                   ],
                   onChanged: recipeDetailStatus.isEdit
                       ? ((String? value) {
-                          recipeDetailStatus.updateProcess(
-                              recipeProcessData.id, value, null, null);
+                          recipeDetailStatus.updateProcess(recipeProcessData.id,
+                              value ?? "Pour", null, null);
                           if (value == "Wait") {
                             recipeDetailStatus.updateProcess(
                                 recipeProcessData.id,
@@ -135,11 +138,11 @@ class ProcessItem extends StatelessWidget {
                       var value = _value.isEmpty ? 0 : int.parse(_value);
                       if (recipeProcessData.label != "Wait") {
                         recipeDetailStatus.updateProcess(recipeProcessData.id,
-                            recipeProcessData.label, value, null);
+                            recipeProcessData.label ?? "Pour", value, null);
                       } else {
                         recipeDetailStatus.updateProcess(
                             recipeProcessData.id,
-                            recipeProcessData.label,
+                            recipeProcessData.label ?? "Pour",
                             value,
                             Duration(seconds: value));
                       }
