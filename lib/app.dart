@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'recipe/recipe_card.dart';
+import './recipe/recipe.dart';
 import 'recipe/recipe_detail.dart';
 import 'recipe/recipe_data.dart';
+
+import 'timer/timer.dart';
 
 import 'setting/setting_page.dart';
 
@@ -60,8 +62,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;
-  var isFloatingButtonVisible = true;
+  //default is 0 but set 1 for debug
+  var selectedIndex = 1;
+  var isFloatingButtonVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
     switch (selectedIndex) {
       case 0:
         appPage = const RecipePage();
+        isFloatingButtonVisible = true;
         break;
       case 1:
         appPage = const TimerPage();
@@ -143,49 +147,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 id: mainStatus.nextId, title: "NewRecipe"),
                             isNew: true,
                           )));
-
-              //mainStatus.setMainStatus();
             },
             child: const Icon(Icons.note_add_outlined)),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    );
-  }
-}
-
-class RecipePage extends StatelessWidget {
-  const RecipePage({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final arrayOfRecipeData = context.watch<MainStatus>();
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          Flexible(
-            child: ListView(
-                children: arrayOfRecipeData.arrayRecipeData
-                    .map((recipeData) => (CoffeeRecipeCard(recipe: recipeData)))
-                    .toList()),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class TimerPage extends StatelessWidget {
-  const TimerPage({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Timer'),
     );
   }
 }
