@@ -15,14 +15,14 @@ class SettingPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text('Setting'),
-            Text("Debugs"),
+            const Text('Setting'),
+            const Text("Debugs"),
             ElevatedButton(
                 onPressed: () {
                   debugPrint("Delete All Data.");
                   mainStatus.resetAllData();
                 },
-                child: Text("Reset All Data"))
+                child: const Text("Reset All Data"))
           ],
         ),
       ),

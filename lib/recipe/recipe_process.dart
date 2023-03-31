@@ -176,7 +176,7 @@ class ProcessItem extends StatelessWidget {
                   },
                   icon: const Icon(Icons.remove),
                 ),
-              )
+              ),
             ],
           ),
         ),

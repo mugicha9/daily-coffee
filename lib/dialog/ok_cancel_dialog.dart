@@ -12,13 +12,13 @@ class OkCancelDialog extends StatelessWidget {
       content: Text(content),
       actions: [
         TextButton(
-          child: Text("Cancel"),
+          child: const Text("Cancel"),
           onPressed: () {
             Navigator.pop(context, false);
           },
         ),
         TextButton(
-          child: Text("OK"),
+          child: const Text("OK"),
           onPressed: () {
             Navigator.pop(context, true);
           },

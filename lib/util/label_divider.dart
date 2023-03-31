@@ -14,7 +14,7 @@ class WithLabelDivider extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Flexible(
+            const Flexible(
               child: SizedBox(
                   width: double.infinity, child: Divider(color: Colors.black)),
             ),
@@ -23,7 +23,7 @@ class WithLabelDivider extends StatelessWidget {
               child:
                   Text(label, style: Theme.of(context).textTheme.headlineSmall),
             ),
-            Flexible(
+            const Flexible(
               child: SizedBox(
                   width: double.infinity, child: Divider(color: Colors.black)),
             )

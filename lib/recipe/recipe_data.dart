@@ -1,14 +1,14 @@
 import 'recipe_process.dart';
 
 enum RecipeIndex {
-  ID,
-  Title,
-  Water,
-  Temperature,
-  Been,
-  TimeSecond,
-  Grain,
-  Precess,
+  id,
+  title,
+  water,
+  temperature,
+  been,
+  timeSecond,
+  grain,
+  precess,
 }
 
 class RecipeData {

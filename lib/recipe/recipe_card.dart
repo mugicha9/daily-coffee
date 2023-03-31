@@ -56,9 +56,9 @@ class CoffeeRecipeCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Icon(Icons.image_outlined, size: 80),
-                  SizedBox(
+                  const SizedBox(
                     height: 80,
-                    child: const VerticalDivider(
+                    child: VerticalDivider(
                       color: Colors.black,
                     ),
                   ),
